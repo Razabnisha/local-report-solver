@@ -38,10 +38,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     const [{ data: profileData }, { data: roles }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
+      supabase.from("profiles").select("id, full_name, avatar, created_at").eq("id", userId).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", userId),
     ]);
-    setProfile((profileData as Profile) ?? null);
+    setProfile(profileData ? ({ ...profileData, email: "" } as Profile) : null);
     setIsAdmin(Boolean(roles?.some((r) => r.role === "admin")));
   };
 
