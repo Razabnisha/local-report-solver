@@ -80,14 +80,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Local Report Hub — Report local civic issues" },
+      { title: "Local Report Hub — Report and track civic issues" },
       {
         name: "description",
         content:
-          "Report potholes, garbage, water leaks and other civic problems in your neighbourhood and follow them until they are resolved.",
+          "Report potholes, garbage dumping, water leaks, street light failures and more. Track every civic complaint in your area from pending to resolved.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "Local Report Hub — Report and track civic issues" },
+      { name: "twitter:title", content: "Local Report Hub — Report and track civic issues" },
+      { property: "og:description", content: "Report potholes, garbage dumping, water leaks, street light failures and more. Track every civic complaint in your area from pending to resolved." },
+      { name: "twitter:description", content: "Report potholes, garbage dumping, water leaks, street light failures and more. Track every civic complaint in your area from pending to resolved." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Q4Qlyo9HC0ZZIwFW3cU8W2fSBd42/social-images/social-1785235596476-WhatsApp_Image_2026-07-26_at_1.00.56_PM.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Q4Qlyo9HC0ZZIwFW3cU8W2fSBd42/social-images/social-1785235596476-WhatsApp_Image_2026-07-26_at_1.00.56_PM.webp" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

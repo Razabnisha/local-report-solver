@@ -25,7 +25,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "A community platform for reporting local civic issues and following them until they are fixed.",
+          "Report potholes, garbage dumping, water leaks, street light failures and more. Track every civic complaint in your area from pending to resolved.",
       },
     ],
   }),
