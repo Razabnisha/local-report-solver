@@ -2,7 +2,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, ClipboardList, Clock, Loader2, ShieldAlert, Trash2 } from "lucide-react";
+import { CheckCircle2, ClipboardList, Clock, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageShell, StatCard } from "@/components/layout/page-shell";
 import { PriorityBadge } from "@/components/reports/badges";
@@ -17,11 +17,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CATEGORIES, PAGE_SIZE, STATUSES, categoryLabel } from "@/lib/constants";
+import { CATEGORIES, PAGE_SIZE, STATUSES, categoryLabel, type ReportStatus } from "@/lib/constants";
 import { fetchCategoryBreakdown, fetchReports, fetchStats } from "@/lib/reports";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import type { ReportStatus } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -103,7 +102,6 @@ function AdminConsole() {
       <PageShell>
         <div className="mx-auto max-w-3xl px-4 py-20">
           <EmptyState
-            icon={<ShieldAlert className="h-8 w-8" />}
             title="Administrators only"
             description="Your account doesn't have permission to open the moderation console."
             action={
