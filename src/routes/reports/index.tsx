@@ -112,7 +112,9 @@ function BrowseReports() {
                 total={data.total}
                 pageSize={PAGE_SIZE}
                 onPageChange={(next) =>
-                  void navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) })
+                  void navigate({
+                    search: (prev: ReportSearch) => ({ ...prev, page: next > 1 ? next : undefined }),
+                  })
                 }
               />
             </>
