@@ -107,7 +107,7 @@ function Home() {
       </section>
 
       {/* Stats */}
-      <section className="mx-auto -mt-10 max-w-6xl px-4">
+      <section className="relative z-10 mx-auto -mt-10 max-w-6xl px-4">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Total reports" value={stats?.total ?? 0} icon={<ClipboardList className="h-5 w-5" />} />
           <StatCard label="Pending" value={stats?.pending ?? 0} tone="warning" icon={<Clock className="h-5 w-5" />} />
