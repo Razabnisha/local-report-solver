@@ -80,7 +80,7 @@ function ProfilePage() {
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-medium">{profile?.email ?? user?.email}</p>
+              <p className="font-medium">{user?.email}</p>
               <p className="text-xs text-muted-foreground">{isAdmin ? "Administrator" : "Community member"}</p>
             </div>
           </div>
