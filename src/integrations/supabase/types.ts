@@ -48,6 +48,55 @@ export type Database = {
             foreignKeyName: "comments_report_id_fkey"
             columns: ["report_id"]
             isOneToOne: false
+            referencedRelation: "report_verification_counts"
+            referencedColumns: ["report_id"]
+          },
+          {
+            foreignKeyName: "comments_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_verifications: {
+        Row: {
+          created_at: string
+          id: string
+          report_id: string
+          response: string
+          user_id: string
+          verification_round: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          report_id: string
+          response: string
+          user_id: string
+          verification_round?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          report_id?: string
+          response?: string
+          user_id?: string
+          verification_round?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_verifications_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "report_verification_counts"
+            referencedColumns: ["report_id"]
+          },
+          {
+            foreignKeyName: "community_verifications_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
             referencedRelation: "reports"
             referencedColumns: ["id"]
           },
@@ -92,6 +141,7 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          verification_round: number
         }
         Insert: {
           category: string
@@ -107,6 +157,7 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
+          verification_round?: number
         }
         Update: {
           category?: string
@@ -122,6 +173,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          verification_round?: number
         }
         Relationships: [
           {
@@ -156,7 +208,15 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      report_verification_counts: {
+        Row: {
+          report_id: string | null
+          solved_count: number | null
+          still_exists_count: number | null
+          verification_round: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
@@ -170,7 +230,15 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       report_priority: "low" | "medium" | "high"
-      report_status: "pending" | "in_progress" | "resolved" | "rejected"
+      report_status:
+        | "pending"
+        | "in_progress"
+        | "resolved"
+        | "rejected"
+        | "under_review"
+        | "awaiting_verification"
+        | "verified_resolved"
+        | "reopened"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -300,7 +368,16 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       report_priority: ["low", "medium", "high"],
-      report_status: ["pending", "in_progress", "resolved", "rejected"],
+      report_status: [
+        "pending",
+        "in_progress",
+        "resolved",
+        "rejected",
+        "under_review",
+        "awaiting_verification",
+        "verified_resolved",
+        "reopened",
+      ],
     },
   },
 } as const

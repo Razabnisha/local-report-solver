@@ -1,0 +1,4 @@
+- [ ] Add community verification schema, status values, grants, RLS, and database-enforced transitions.
+- [ ] Add verification data access, status labels, counts, and report-detail actions.
+- [ ] Extend admin stats and filters for awaiting, verified, and reopened states.
+- [ ] Validate build, diagnostics, and the public report flow.
