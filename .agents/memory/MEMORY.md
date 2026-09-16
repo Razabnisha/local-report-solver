@@ -1,0 +1,1 @@
+- [Imported dependency installation](imported-project-dependencies.md) — use the Bun lockfile when npm's imported lockfile is out of sync.

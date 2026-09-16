@@ -23,6 +23,7 @@ export interface Report {
   longitude: number | null;
   created_at: string;
   updated_at: string;
+  verification_round: number;
 }
 
 export interface ReportWithAuthor extends Report {
@@ -36,6 +37,24 @@ export interface CommentWithAuthor {
   comment: string;
   created_at: string;
   profiles: Pick<Profile, "id" | "full_name" | "avatar"> | null;
+}
+
+export interface VerificationCounts {
+  report_id: string;
+  verification_round: number;
+  solved_count: number;
+  still_exists_count: number;
+}
+
+export type VerificationResponse = "solved" | "still_exists";
+
+export interface CommunityVerification {
+  id: string;
+  report_id: string;
+  user_id: string;
+  response: VerificationResponse;
+  verification_round: number;
+  created_at: string;
 }
 
 export interface ReportFilters {

@@ -3,10 +3,29 @@ import { cn } from "@/lib/utils";
 import type { ReportPriority, ReportStatus } from "@/lib/constants";
 
 const STATUS_STYLES: Record<ReportStatus, { label: string; className: string }> = {
-  pending: { label: "Pending", className: "bg-warning/15 text-warning-foreground dark:text-warning border-warning/30" },
+  pending: {
+    label: "Pending",
+    className: "bg-warning/15 text-warning-foreground dark:text-warning border-warning/30",
+  },
   in_progress: { label: "In Progress", className: "bg-info/15 text-info border-info/30" },
   resolved: { label: "Resolved", className: "bg-success/15 text-success border-success/30" },
-  rejected: { label: "Rejected", className: "bg-destructive/12 text-destructive border-destructive/30" },
+  rejected: {
+    label: "Rejected",
+    className: "bg-destructive/12 text-destructive border-destructive/30",
+  },
+  under_review: { label: "Under Review", className: "bg-info/15 text-info border-info/30" },
+  awaiting_verification: {
+    label: "Awaiting Community Verification",
+    className: "bg-warning/15 text-warning-foreground dark:text-warning border-warning/30",
+  },
+  verified_resolved: {
+    label: "Verified Resolved",
+    className: "bg-success/15 text-success border-success/30",
+  },
+  reopened: {
+    label: "Reopened",
+    className: "bg-destructive/12 text-destructive border-destructive/30",
+  },
 };
 
 const PRIORITY_STYLES: Record<ReportPriority, string> = {
@@ -23,7 +42,13 @@ export function StatusBadge({ status, className }: { status: ReportStatus; class
   return <span className={cn(base, style.className, className)}>{style.label}</span>;
 }
 
-export function PriorityBadge({ priority, className }: { priority: ReportPriority; className?: string }) {
+export function PriorityBadge({
+  priority,
+  className,
+}: {
+  priority: ReportPriority;
+  className?: string;
+}) {
   return (
     <span className={cn(base, PRIORITY_STYLES[priority] ?? PRIORITY_STYLES.low, className)}>
       {priority} priority

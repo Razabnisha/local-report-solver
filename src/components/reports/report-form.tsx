@@ -20,7 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CATEGORIES, PRIORITIES, STATUSES } from "@/lib/constants";
+import {
+  ADMIN_STATUSES,
+  CATEGORIES,
+  PRIORITIES,
+  statusAfterAdminSelection,
+  type ReportStatus,
+} from "@/lib/constants";
 import { getImageUrl, uploadReportImage } from "@/lib/reports";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -44,7 +50,7 @@ export function ReportForm({ report }: { report?: Report }) {
   const [description, setDescription] = useState(report?.description ?? "");
   const [category, setCategory] = useState(report?.category ?? "");
   const [priority, setPriority] = useState(report?.priority ?? "medium");
-  const [status, setStatus] = useState(report?.status ?? "pending");
+  const [status, setStatus] = useState<ReportStatus>(report?.status ?? "pending");
   const [location, setLocation] = useState(report?.location ?? "");
   const [latitude, setLatitude] = useState<string>(report?.latitude?.toString() ?? "");
   const [longitude, setLongitude] = useState<string>(report?.longitude?.toString() ?? "");
@@ -209,14 +215,28 @@ export function ReportForm({ report }: { report?: Report }) {
         <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
           <div className="space-y-2">
             <Label htmlFor="lat">Latitude</Label>
-            <Input id="lat" value={latitude} onChange={(e) => setLatitude(e.target.value)} placeholder="Optional" />
+            <Input
+              id="lat"
+              value={latitude}
+              onChange={(e) => setLatitude(e.target.value)}
+              placeholder="Optional"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="lng">Longitude</Label>
-            <Input id="lng" value={longitude} onChange={(e) => setLongitude(e.target.value)} placeholder="Optional" />
+            <Input
+              id="lng"
+              value={longitude}
+              onChange={(e) => setLongitude(e.target.value)}
+              placeholder="Optional"
+            />
           </div>
           <Button type="button" variant="secondary" onClick={useMyLocation} disabled={locating}>
-            {locating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Crosshair className="mr-2 h-4 w-4" />}
+            {locating ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Crosshair className="mr-2 h-4 w-4" />
+            )}
             Use my location
           </Button>
         </div>
@@ -236,7 +256,11 @@ export function ReportForm({ report }: { report?: Report }) {
           <Label>Photo</Label>
           {preview ? (
             <div className="relative overflow-hidden rounded-xl border border-border">
-              <img src={preview} alt="Selected report photo preview" className="h-44 w-full object-cover" />
+              <img
+                src={preview}
+                alt="Selected report photo preview"
+                className="h-44 w-full object-cover"
+              />
               <button
                 type="button"
                 onClick={() => {
@@ -272,12 +296,15 @@ export function ReportForm({ report }: { report?: Report }) {
         {isAdmin && report && (
           <div className="surface-card space-y-3 p-6">
             <Label>Status (admin)</Label>
-            <Select value={status} onValueChange={(v) => setStatus(v as typeof status)}>
+            <Select
+              value={status}
+              onValueChange={(v) => setStatus(statusAfterAdminSelection(v as ReportStatus))}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {STATUSES.map((s) => (
+                {ADMIN_STATUSES.map((s) => (
                   <SelectItem key={s.value} value={s.value}>
                     {s.label}
                   </SelectItem>

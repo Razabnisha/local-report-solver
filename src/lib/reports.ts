@@ -5,12 +5,21 @@
  */
 import { supabase } from "@/integrations/supabase/client";
 import { PAGE_SIZE } from "./constants";
-import type { CommentWithAuthor, ReportFilters, ReportWithAuthor } from "./types";
+import type {
+  CommunityVerification,
+  CommentWithAuthor,
+  ReportFilters,
+  ReportWithAuthor,
+  VerificationCounts,
+  VerificationResponse,
+} from "./types";
 
 const REPORT_SELECT = "*, profiles:profiles!reports_profile_fkey(id, full_name, avatar)";
 const COMMENT_SELECT = "*, profiles:profiles!comments_profile_fkey(id, full_name, avatar)";
 
-export async function fetchReports(filters: Partial<ReportFilters> & { userId?: string; limit?: number }) {
+export async function fetchReports(
+  filters: Partial<ReportFilters> & { userId?: string; limit?: number },
+) {
   const page = filters.page ?? 1;
   const limit = filters.limit ?? PAGE_SIZE;
   const from = (page - 1) * limit;
@@ -22,9 +31,12 @@ export async function fetchReports(filters: Partial<ReportFilters> & { userId?: 
     .range(from, from + limit - 1);
 
   if (filters.search) query = query.ilike("title", `%${filters.search}%`);
-  if (filters.category && filters.category !== "all") query = query.eq("category", filters.category);
-  if (filters.status && filters.status !== "all") query = query.eq("status", filters.status as never);
-  if (filters.priority && filters.priority !== "all") query = query.eq("priority", filters.priority as never);
+  if (filters.category && filters.category !== "all")
+    query = query.eq("category", filters.category);
+  if (filters.status && filters.status !== "all")
+    query = query.eq("status", filters.status as never);
+  if (filters.priority && filters.priority !== "all")
+    query = query.eq("priority", filters.priority as never);
   if (filters.userId) query = query.eq("user_id", filters.userId);
 
   const { data, error, count } = await query;
@@ -34,9 +46,61 @@ export async function fetchReports(filters: Partial<ReportFilters> & { userId?: 
 }
 
 export async function fetchReport(id: string) {
-  const { data, error } = await supabase.from("reports").select(REPORT_SELECT).eq("id", id).maybeSingle();
+  const { data, error } = await supabase
+    .from("reports")
+    .select(REPORT_SELECT)
+    .eq("id", id)
+    .maybeSingle();
   if (error) throw error;
   return (data as unknown as ReportWithAuthor) ?? null;
+}
+
+export async function fetchVerificationCounts(reportId: string, verificationRound: number) {
+  const { data, error } = await supabase
+    .from("report_verification_counts")
+    .select("report_id, verification_round, solved_count, still_exists_count")
+    .eq("report_id", reportId)
+    .eq("verification_round", verificationRound)
+    .maybeSingle();
+  if (error) throw error;
+  return (
+    (data as VerificationCounts | null) ?? {
+      report_id: reportId,
+      verification_round: verificationRound,
+      solved_count: 0,
+      still_exists_count: 0,
+    }
+  );
+}
+
+export async function fetchMyVerification(
+  reportId: string,
+  userId: string,
+  verificationRound: number,
+) {
+  const { data, error } = await supabase
+    .from("community_verifications")
+    .select("*")
+    .eq("report_id", reportId)
+    .eq("user_id", userId)
+    .eq("verification_round", verificationRound)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as CommunityVerification | null) ?? null;
+}
+
+export async function submitVerification(
+  reportId: string,
+  userId: string,
+  response: VerificationResponse,
+) {
+  const { data, error } = await supabase
+    .from("community_verifications")
+    .insert({ report_id: reportId, user_id: userId, response })
+    .select("*")
+    .single();
+  if (error) throw error;
+  return data as CommunityVerification;
 }
 
 export async function fetchComments(reportId: string) {
@@ -94,7 +158,9 @@ export async function uploadReportImage(file: File, userId: string) {
 export async function getImageUrl(path: string | null) {
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  const { data, error } = await supabase.storage.from("report-images").createSignedUrl(path, 60 * 60);
+  const { data, error } = await supabase.storage
+    .from("report-images")
+    .createSignedUrl(path, 60 * 60);
   if (error) return null;
   return data?.signedUrl ?? null;
 }

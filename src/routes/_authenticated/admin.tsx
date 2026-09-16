@@ -17,7 +17,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CATEGORIES, PAGE_SIZE, STATUSES, categoryLabel, type ReportStatus } from "@/lib/constants";
+import {
+  ADMIN_STATUSES,
+  CATEGORIES,
+  PAGE_SIZE,
+  categoryLabel,
+  statusAfterAdminSelection,
+  type ReportStatus,
+} from "@/lib/constants";
 import { fetchCategoryBreakdown, fetchReports, fetchStats } from "@/lib/reports";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -49,7 +56,11 @@ function AdminConsole() {
   const [filters, setFilters] = useState<FilterValues>(EMPTY);
   const [page, setPage] = useState(1);
 
-  const { data: stats } = useQuery({ queryKey: ["stats", "all"], queryFn: () => fetchStats(), enabled: isAdmin });
+  const { data: stats } = useQuery({
+    queryKey: ["stats", "all"],
+    queryFn: () => fetchStats(),
+    enabled: isAdmin,
+  });
   const { data: breakdown } = useQuery({
     queryKey: ["category-breakdown"],
     queryFn: fetchCategoryBreakdown,
@@ -63,11 +74,17 @@ function AdminConsole() {
 
   const setStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: ReportStatus }) => {
-      const { error } = await supabase.from("reports").update({ status }).eq("id", id);
+      const nextStatus = statusAfterAdminSelection(status);
+      const { error } = await supabase.from("reports").update({ status: nextStatus }).eq("id", id);
       if (error) throw error;
+      return nextStatus;
     },
-    onSuccess: () => {
-      toast.success("Status updated");
+    onSuccess: (status) => {
+      toast.success(
+        status === "awaiting_verification"
+          ? "Report marked resolved and sent for community verification"
+          : "Status updated",
+      );
       void queryClient.invalidateQueries({ queryKey: ["reports"] });
       void queryClient.invalidateQueries({ queryKey: ["stats"] });
     },
@@ -126,12 +143,23 @@ function AdminConsole() {
       <div className="mx-auto max-w-6xl px-4 py-12">
         <header className="mb-8">
           <h1 className="text-3xl font-bold">Admin console</h1>
-          <p className="mt-2 text-muted-foreground">Triage incoming reports and keep residents informed.</p>
+          <p className="mt-2 text-muted-foreground">
+            Triage incoming reports and keep residents informed.
+          </p>
         </header>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="All reports" value={stats?.total ?? 0} icon={<ClipboardList className="h-5 w-5" />} />
-          <StatCard label="Pending" value={stats?.pending ?? 0} tone="warning" icon={<Clock className="h-5 w-5" />} />
+          <StatCard
+            label="All reports"
+            value={stats?.total ?? 0}
+            icon={<ClipboardList className="h-5 w-5" />}
+          />
+          <StatCard
+            label="Pending"
+            value={stats?.pending ?? 0}
+            tone="warning"
+            icon={<Clock className="h-5 w-5" />}
+          />
           <StatCard
             label="In progress"
             value={stats?.inProgress ?? 0}
@@ -158,7 +186,9 @@ function AdminConsole() {
                     style={{ width: `${(category.count / max) * 100}%` }}
                   />
                 </span>
-                <span className="w-8 text-right text-sm font-semibold tabular-nums">{category.count}</span>
+                <span className="w-8 text-right text-sm font-semibold tabular-nums">
+                  {category.count}
+                </span>
               </li>
             ))}
           </ul>
@@ -191,20 +221,23 @@ function AdminConsole() {
                         {report.title}
                       </Link>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {categoryLabel(report.category)} · {report.profiles?.full_name ?? "Resident"} ·{" "}
+                        {categoryLabel(report.category)} ·{" "}
+                        {report.profiles?.full_name ?? "Resident"} ·{" "}
                         {new Date(report.created_at).toLocaleDateString()}
                       </p>
                     </div>
                     <PriorityBadge priority={report.priority} />
                     <Select
                       value={report.status}
-                      onValueChange={(status) => setStatus.mutate({ id: report.id, status: status as ReportStatus })}
+                      onValueChange={(status) =>
+                        setStatus.mutate({ id: report.id, status: status as ReportStatus })
+                      }
                     >
                       <SelectTrigger className="w-40" aria-label="Update status">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {STATUSES.map((status) => (
+                        {ADMIN_STATUSES.map((status) => (
                           <SelectItem key={status.value} value={status.value}>
                             {status.label}
                           </SelectItem>
@@ -216,7 +249,8 @@ function AdminConsole() {
                       size="icon"
                       aria-label="Delete report"
                       onClick={() => {
-                        if (window.confirm("Delete this report permanently?")) remove.mutate(report.id);
+                        if (window.confirm("Delete this report permanently?"))
+                          remove.mutate(report.id);
                       }}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
@@ -224,10 +258,18 @@ function AdminConsole() {
                   </div>
                 ))}
               </div>
-              <PaginationBar page={page} total={data.total} pageSize={PAGE_SIZE} onPageChange={setPage} />
+              <PaginationBar
+                page={page}
+                total={data.total}
+                pageSize={PAGE_SIZE}
+                onPageChange={setPage}
+              />
             </>
           ) : (
-            <EmptyState title="No reports match these filters" description="Try widening your search." />
+            <EmptyState
+              title="No reports match these filters"
+              description="Try widening your search."
+            />
           )}
         </div>
       </div>
